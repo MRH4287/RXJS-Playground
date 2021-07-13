@@ -1,5 +1,5 @@
-import { BehaviorSubject, fromEvent, Observable, of, Subject, timer } from "rxjs";
-import { map, mergeMap, switchMap, tap } from "rxjs/operators";
+import { BehaviorSubject, combineLatest, forkJoin, fromEvent, merge, Observable, of, Subject, timer } from "rxjs";
+import {  catchError, debounceTime, delay, map, mergeMap, switchMap, take, takeUntil, tap } from "rxjs/operators";
 import { Api } from "./fakeApi";
 
 /**
@@ -110,7 +110,14 @@ export class Playground {
     win.timer = timer;
     win.mergeMap = mergeMap;
     win.switchMap = switchMap;
-
+    win.merge = merge;
+    win.forkJoin = forkJoin;
+    win.combineLatest = combineLatest;
+    win.delay = delay;
+    win.debounceTime = debounceTime;
+    win.takeUntil = takeUntil;
+    win.take = take;
+    win.catchError = catchError;
   }
 
 

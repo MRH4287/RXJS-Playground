@@ -1,5 +1,5 @@
-import { BehaviorSubject, forkJoin, merge, Observable, of, Subject, timer } from "rxjs";
-import { delay, distinctUntilChanged, filter, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, forkJoin, merge, Observable, of, Subject, timer } from "rxjs";
+import { catchError, debounceTime, delay, distinctUntilChanged, filter, finalize, map, mergeMap, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
 import { Api, ApiResult } from "./fakeApi";
 import { Playground } from "./playground";
 
@@ -32,29 +32,6 @@ Playground.makePublic();
 Playground.enableIcon(0);
 
 
-/*
-  - mergeMap (flatMap)
-  - switchMap
-  - forkJoin
-  - map
-  - delay
-  - takeUntil
-  - take
-  - merge
-  - combineLatest
-
-
-  - Subject
-  - BehaviorSubject
-
-  - Subscription
-  - Subscriber
-
-  - timer
-
-*/
-
-
 /* Part1 -- How does RxJS work? */
 // Try in Console:
 // var event = Playground.getButtonEvent();
@@ -69,16 +46,9 @@ Playground.enableIcon(0);
 
 
 
-
-
-
-
-
-
-
 /* Part2 -- How does RxJS work? */
 
-if (false) {
+if (true) {
 
   Playground.enableIcon(1);
 
@@ -186,7 +156,7 @@ if (false) {
 
 /* Part 6 -- Async Methods */
 
-if (true) {
+if (false) {
   Playground.enableIcon(3);
 
 
@@ -233,40 +203,78 @@ if (true) {
 }
 
 
-// const buttonClick = Playground.getButtonEvent();
-// const button = Playground.getButton();
-
-// buttonClick.pipe(
-//   tap(() => button.disabled = true),
-//   Playground.lightIcon('icon1'),
-//   mergeMap(event => Api.getResultRandom(event)),
-//   map(e => JSON.stringify({
-//     success: e.success,
-//     data: {
-//       x: e.data?.clientX,
-//       y: e.data?.clientY
-//     }
-//   })),
-//   tap(() => button.disabled = false),
-//   Playground.lightIcon('icon2'),
-// ).subscribe(result => {
-//   Playground.setResult(result);
-// });
-
-// const observables: Observable<ApiResult<number>>[] = [];
-// for (let i = 0; i < 100; i++) {
-//   observables[i] = Api.getResultRandom(i);
-// }
-
-// forkJoin(observables).subscribe(res => setResult(res));
-// merge(...observables).subscribe(res => setResult(res));
+/* Part 7 - Combining Observables */
 
 
-// of(2).pipe(
-//   switchMap(val => {
-//     return timer(1, 23).pipe(map(_ => val))
-//   })
-// );
+if (false) {
+
+  const observables: Observable<ApiResult<number>>[] = [];
+  for (let i = 0; i < 100; i++) {
+    observables[i] = Api.getResultRandom(i);
+  }
+
+  Playground.setResult("Merge");
+  merge(...observables).subscribe(Playground.setResult);
+
+
+  Playground.setResult("Fork");
+  forkJoin(observables).subscribe(Playground.setResult);
+
+
+  Playground.setResult("combineLatest");
+  var a = new Subject<string>();
+  var b = new Subject<string>();
+  var c = new Subject<string>();
+
+
+  combineLatest([a, b, c]).subscribe(Playground.setResult);
+
+  a.next("a1");
+  b.next("b1");
+  c.next("b1");
+
+  a.next("a2");
+  b.next("b2");
+  c.next("c2");
+
+  a.next("a3");
+  b.next("b3");
+  c.next("c3");
+
+}
+
+
+/* Part 8 -- dataflow */
+
+if (false) {
+
+  // Playground.getButtonEvent().pipe(
+  //   delay(1000),
+  //   debounceTime(1000),
+  // ).subscribe(Playground.setResult);
+
+
+  // timer(0, 500).pipe(
+  //   //take(10),
+  //    takeUntil(Playground.getButtonEvent())
+  // ).subscribe(Playground.setResult);
+
+
+  Playground.getButtonEvent().pipe(
+    tap(() => {
+      throw new Error('This is an Error');
+    }),
+    catchError(err => {
+      console.error('Error', err);
+
+      return of('New Value');
+
+    })
+  ).subscribe(Playground.setResult);
+
+
+
+}
 
 
 
